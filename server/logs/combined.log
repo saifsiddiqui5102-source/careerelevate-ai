@@ -1,0 +1,139 @@
+[2026-08-05 20:59:36] [INFO]: 🚀 Express Security-Hardened Server running on port 5000
+[2026-08-05 20:59:36] [INFO]: 📘 Interactive Swagger API Specs available at http://localhost:5000/api-docs
+[2026-08-05 20:59:36] [INFO]: 🔒 Helmet, CORS, Rate Limit, Mongo Sanitize & XSS Protections ACTIVE
+[2026-08-05 20:59:36] [ERROR]: [UNCAUGHT EXCEPTION]: listen EADDRINUSE: address already in use :::5000
+Stack: Error: listen EADDRINUSE: address already in use :::5000
+    at Server.setupListenHandle [as _listen2] (node:net:1940:16)
+    at listenInCluster (node:net:1997:12)
+    at Server.listen (node:net:2102:7)
+    at app.listen (C:\Users\Mohd saif siddiqui\.gemini\antigravity\scratch\resume-interview-pro\server\node_modules\express\lib\application.js:635:24)
+    at file:///C:/Users/Mohd%20saif%20siddiqui/.gemini/antigravity/scratch/resume-interview-pro/server/server.js:108:7
+    at ModuleJob.run (node:internal/modules/esm/module_job:370:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:665:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:99:5)
+[2026-08-05 20:59:36] [ERROR]: [UNCAUGHT EXCEPTION]: listen EADDRINUSE: address already in use :::5000
+Stack: Error: listen EADDRINUSE: address already in use :::5000
+    at Server.setupListenHandle [as _listen2] (node:net:1940:16)
+    at listenInCluster (node:net:1997:12)
+    at Server.listen (node:net:2102:7)
+    at app.listen (C:\Users\Mohd saif siddiqui\.gemini\antigravity\scratch\resume-interview-pro\server\node_modules\express\lib\application.js:635:24)
+    at file:///C:/Users/Mohd%20saif%20siddiqui/.gemini/antigravity/scratch/resume-interview-pro/server/server.js:108:7
+    at ModuleJob.run (node:internal/modules/esm/module_job:370:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:665:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:99:5)
+[2026-08-05 20:59:36] [ERROR]: [UNCAUGHT EXCEPTION]: listen EADDRINUSE: address already in use :::5000
+Stack: Error: listen EADDRINUSE: address already in use :::5000
+    at Server.setupListenHandle [as _listen2] (node:net:1940:16)
+    at listenInCluster (node:net:1997:12)
+    at Server.listen (node:net:2102:7)
+    at app.listen (C:\Users\Mohd saif siddiqui\.gemini\antigravity\scratch\resume-interview-pro\server\node_modules\express\lib\application.js:635:24)
+    at file:///C:/Users/Mohd%20saif%20siddiqui/.gemini/antigravity/scratch/resume-interview-pro/server/server.js:108:7
+    at ModuleJob.run (node:internal/modules/esm/module_job:370:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:665:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:99:5)
+[2026-08-05 20:59:36] [INFO]: GET /api/v1/interview/questions 200 8ms | HTTP GET /api/v1/interview/questions 200
+[2026-08-05 20:59:36] [INFO]: GET /api/v1/dashboard 200 9ms | HTTP GET /api/v1/dashboard 200
+[2026-08-05 20:59:36] [INFO]: POST /api/v1/resume/analyze 200 33ms | HTTP POST /api/v1/resume/analyze 200
+[2026-08-05 20:59:36] [INFO]: GET /api/v1/dashboard/analytics 200 4ms | HTTP GET /api/v1/dashboard/analytics 200
+[2026-08-05 20:59:36] [INFO]: POST /api/v1/interview/generate-questions 200 29ms | HTTP POST /api/v1/interview/generate-questions 200
+[2026-08-05 20:59:36] [WARN]: POST /api/v1/resume/analyze 400 3ms | HTTP POST /api/v1/resume/analyze 400
+[2026-08-05 20:59:36] [INFO]: POST /api/v1/interview/mock 200 5ms | HTTP POST /api/v1/interview/mock 200
+[2026-08-05 20:59:36] [INFO]: GET /api/v1/resume/versions 200 4ms | HTTP GET /api/v1/resume/versions 200
+[2026-08-05 20:59:36] [INFO]: GET /api/v1/interview/history 200 2ms | HTTP GET /api/v1/interview/history 200
+[2026-08-05 20:59:36] [INFO]: POST /api/v1/resume/compare 200 2ms | HTTP POST /api/v1/resume/compare 200
+[2026-08-05 20:59:37] [INFO]: POST /api/v1/auth/register 200 149ms | HTTP POST /api/v1/auth/register 200
+[2026-08-05 20:59:37] [WARN]: POST /api/v1/auth/register 400 2ms | HTTP POST /api/v1/auth/register 400
+[2026-08-05 20:59:37] [INFO]: POST /api/v1/auth/verify-otp 200 5ms | HTTP POST /api/v1/auth/verify-otp 200
+[2026-08-05 20:59:37] [INFO]: POST /api/v1/auth/login 200 102ms | HTTP POST /api/v1/auth/login 200
+[2026-08-05 20:59:37] [WARN]: POST /api/v1/auth/login 401 107ms | HTTP POST /api/v1/auth/login 401
+[2026-08-05 20:59:37] [INFO]: GET /api/v1/auth/profile 200 7ms | HTTP GET /api/v1/auth/profile 200
+[2026-08-05 21:00:58] [INFO]: 🚀 Express Security-Hardened Server running on port 5000
+[2026-08-05 21:00:58] [INFO]: 📘 Interactive Swagger API Specs available at http://localhost:5000/api-docs
+[2026-08-05 21:00:58] [INFO]: 🔒 Helmet, CORS, Rate Limit, Mongo Sanitize & XSS Protections ACTIVE
+[2026-08-05 21:01:13] [INFO]: GET /api/v1/resume/versions 200 7ms | HTTP GET /api/v1/resume/versions 200
+[2026-08-05 21:01:13] [INFO]: GET /api/v1/resume/versions 200 3ms | HTTP GET /api/v1/resume/versions 200
+[2026-08-05 21:01:13] [INFO]: POST /api/v1/resume/compare 200 34ms | HTTP POST /api/v1/resume/compare 200
+[2026-08-05 21:01:13] [INFO]: POST /api/v1/resume/compare 200 7ms | HTTP POST /api/v1/resume/compare 200
+[2026-08-06 08:15:25] [INFO]: 🚀 Express Security-Hardened Server running on port 5000
+[2026-08-06 08:15:25] [INFO]: 🔒 Helmet, CORS, Rate Limit, Mongo Sanitize & XSS Protections ACTIVE
+[2026-08-06 08:15:25] [INFO]: 📘 Interactive Swagger API Specs available at http://localhost:5000/api-docs
+[2026-08-06 08:17:02] [INFO]: 🚀 Express Security-Hardened Server running on port 5000
+[2026-08-06 08:17:02] [INFO]: 📘 Interactive Swagger API Specs available at http://localhost:5000/api-docs
+[2026-08-06 08:17:02] [INFO]: 🔒 Helmet, CORS, Rate Limit, Mongo Sanitize & XSS Protections ACTIVE
+[2026-08-06 08:17:22] [INFO]: 🔒 Helmet, CORS, Rate Limit, Mongo Sanitize & XSS Protections ACTIVE
+[2026-08-06 08:17:22] [INFO]: 📘 Interactive Swagger API Specs available at http://localhost:5000/api-docs
+[2026-08-06 08:17:22] [INFO]: 🚀 Express Security-Hardened Server running on port 5000
+[2026-08-06 08:34:57] [INFO]: 🚀 Express Security-Hardened Server running on port 5000
+[2026-08-06 08:34:57] [INFO]: 📘 Interactive Swagger API Specs available at http://localhost:5000/api-docs
+[2026-08-06 08:34:57] [INFO]: 🔒 Helmet, CORS, Rate Limit, Mongo Sanitize & XSS Protections ACTIVE
+[2026-08-06 12:18:46] [ERROR]: [SERVER ERROR 404] Cannot find route / on this server | HTTP GET / 404
+Stack: Error: Cannot find route / on this server
+    at notFoundHandler (file:///C:/Users/Mohd%20saif%20siddiqui/.gemini/antigravity/scratch/resume-interview-pro/server/middleware/errorMiddleware.js:16:17)
+    at Layer.handle [as handle_request] (C:\Users\Mohd saif siddiqui\.gemini\antigravity\scratch\resume-interview-pro\server\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (C:\Users\Mohd saif siddiqui\.gemini\antigravity\scratch\resume-interview-pro\server\node_modules\express\lib\router\index.js:328:13)
+    at C:\Users\Mohd saif siddiqui\.gemini\antigravity\scratch\resume-interview-pro\server\node_modules\express\lib\router\index.js:286:9
+    at router.process_params (C:\Users\Mohd saif siddiqui\.gemini\antigravity\scratch\resume-interview-pro\server\node_modules\express\lib\router\index.js:346:12)
+    at next (C:\Users\Mohd saif siddiqui\.gemini\antigravity\scratch\resume-interview-pro\server\node_modules\express\lib\router\index.js:280:10)
+    at sanitizeXSS (file:///C:/Users/Mohd%20saif%20siddiqui/.gemini/antigravity/scratch/resume-interview-pro/server/middleware/securityMiddleware.js:148:3)
+    at Layer.handle [as handle_request] (C:\Users\Mohd saif siddiqui\.gemini\antigravity\scratch\resume-interview-pro\server\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (C:\Users\Mohd saif siddiqui\.gemini\antigravity\scratch\resume-interview-pro\server\node_modules\express\lib\router\index.js:328:13)
+    at C:\Users\Mohd saif siddiqui\.gemini\antigravity\scratch\resume-interview-pro\server\node_modules\express\lib\router\index.js:286:9
+[2026-08-06 12:18:46] [WARN]: GET / 404 13ms | HTTP GET / 404
+[2026-08-06 12:18:52] [ERROR]: [SERVER ERROR 404] Cannot find route / on this server | HTTP GET / 404
+Stack: Error: Cannot find route / on this server
+    at notFoundHandler (file:///C:/Users/Mohd%20saif%20siddiqui/.gemini/antigravity/scratch/resume-interview-pro/server/middleware/errorMiddleware.js:16:17)
+    at Layer.handle [as handle_request] (C:\Users\Mohd saif siddiqui\.gemini\antigravity\scratch\resume-interview-pro\server\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (C:\Users\Mohd saif siddiqui\.gemini\antigravity\scratch\resume-interview-pro\server\node_modules\express\lib\router\index.js:328:13)
+    at C:\Users\Mohd saif siddiqui\.gemini\antigravity\scratch\resume-interview-pro\server\node_modules\express\lib\router\index.js:286:9
+    at router.process_params (C:\Users\Mohd saif siddiqui\.gemini\antigravity\scratch\resume-interview-pro\server\node_modules\express\lib\router\index.js:346:12)
+    at next (C:\Users\Mohd saif siddiqui\.gemini\antigravity\scratch\resume-interview-pro\server\node_modules\express\lib\router\index.js:280:10)
+    at sanitizeXSS (file:///C:/Users/Mohd%20saif%20siddiqui/.gemini/antigravity/scratch/resume-interview-pro/server/middleware/securityMiddleware.js:148:3)
+    at Layer.handle [as handle_request] (C:\Users\Mohd saif siddiqui\.gemini\antigravity\scratch\resume-interview-pro\server\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (C:\Users\Mohd saif siddiqui\.gemini\antigravity\scratch\resume-interview-pro\server\node_modules\express\lib\router\index.js:328:13)
+    at C:\Users\Mohd saif siddiqui\.gemini\antigravity\scratch\resume-interview-pro\server\node_modules\express\lib\router\index.js:286:9
+[2026-08-06 12:18:52] [WARN]: GET / 404 2ms | HTTP GET / 404
+[2026-08-06 12:18:52] [ERROR]: [SERVER ERROR 404] Cannot find route /loginMsg.js on this server | HTTP GET /loginMsg.js 404
+Stack: Error: Cannot find route /loginMsg.js on this server
+    at notFoundHandler (file:///C:/Users/Mohd%20saif%20siddiqui/.gemini/antigravity/scratch/resume-interview-pro/server/middleware/errorMiddleware.js:16:17)
+    at Layer.handle [as handle_request] (C:\Users\Mohd saif siddiqui\.gemini\antigravity\scratch\resume-interview-pro\server\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (C:\Users\Mohd saif siddiqui\.gemini\antigravity\scratch\resume-interview-pro\server\node_modules\express\lib\router\index.js:328:13)
+    at C:\Users\Mohd saif siddiqui\.gemini\antigravity\scratch\resume-interview-pro\server\node_modules\express\lib\router\index.js:286:9
+    at router.process_params (C:\Users\Mohd saif siddiqui\.gemini\antigravity\scratch\resume-interview-pro\server\node_modules\express\lib\router\index.js:346:12)
+    at next (C:\Users\Mohd saif siddiqui\.gemini\antigravity\scratch\resume-interview-pro\server\node_modules\express\lib\router\index.js:280:10)
+    at sanitizeXSS (file:///C:/Users/Mohd%20saif%20siddiqui/.gemini/antigravity/scratch/resume-interview-pro/server/middleware/securityMiddleware.js:148:3)
+    at Layer.handle [as handle_request] (C:\Users\Mohd saif siddiqui\.gemini\antigravity\scratch\resume-interview-pro\server\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (C:\Users\Mohd saif siddiqui\.gemini\antigravity\scratch\resume-interview-pro\server\node_modules\express\lib\router\index.js:328:13)
+    at C:\Users\Mohd saif siddiqui\.gemini\antigravity\scratch\resume-interview-pro\server\node_modules\express\lib\router\index.js:286:9
+[2026-08-06 12:18:52] [WARN]: GET /loginMsg.js 404 3ms | HTTP GET /loginMsg.js 404
+[2026-08-06 12:18:52] [WARN]: GET /cgi/get.cgi?cmd=home_login 404 4ms | HTTP GET /cgi/get.cgi?cmd=home_login 404
+[2026-08-06 12:18:52] [ERROR]: [SERVER ERROR 404] Cannot find route /cgi/get.cgi?cmd=home_login on this server | HTTP GET /cgi/get.cgi?cmd=home_login 404
+Stack: Error: Cannot find route /cgi/get.cgi?cmd=home_login on this server
+    at notFoundHandler (file:///C:/Users/Mohd%20saif%20siddiqui/.gemini/antigravity/scratch/resume-interview-pro/server/middleware/errorMiddleware.js:16:17)
+    at Layer.handle [as handle_request] (C:\Users\Mohd saif siddiqui\.gemini\antigravity\scratch\resume-interview-pro\server\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (C:\Users\Mohd saif siddiqui\.gemini\antigravity\scratch\resume-interview-pro\server\node_modules\express\lib\router\index.js:328:13)
+    at C:\Users\Mohd saif siddiqui\.gemini\antigravity\scratch\resume-interview-pro\server\node_modules\express\lib\router\index.js:286:9
+    at router.process_params (C:\Users\Mohd saif siddiqui\.gemini\antigravity\scratch\resume-interview-pro\server\node_modules\express\lib\router\index.js:346:12)
+    at next (C:\Users\Mohd saif siddiqui\.gemini\antigravity\scratch\resume-interview-pro\server\node_modules\express\lib\router\index.js:280:10)
+    at sanitizeXSS (file:///C:/Users/Mohd%20saif%20siddiqui/.gemini/antigravity/scratch/resume-interview-pro/server/middleware/securityMiddleware.js:148:3)
+    at Layer.handle [as handle_request] (C:\Users\Mohd saif siddiqui\.gemini\antigravity\scratch\resume-interview-pro\server\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (C:\Users\Mohd saif siddiqui\.gemini\antigravity\scratch\resume-interview-pro\server\node_modules\express\lib\router\index.js:328:13)
+    at C:\Users\Mohd saif siddiqui\.gemini\antigravity\scratch\resume-interview-pro\server\node_modules\express\lib\router\index.js:286:9
+[2026-08-06 12:18:56] [ERROR]: [SERVER ERROR 404] Cannot find route /boaform/admin/formTracert/diag_ping.asp on this server | HTTP GET /boaform/admin/formTracert/diag_ping.asp 404
+Stack: Error: Cannot find route /boaform/admin/formTracert/diag_ping.asp on this server
+    at notFoundHandler (file:///C:/Users/Mohd%20saif%20siddiqui/.gemini/antigravity/scratch/resume-interview-pro/server/middleware/errorMiddleware.js:16:17)
+    at Layer.handle [as handle_request] (C:\Users\Mohd saif siddiqui\.gemini\antigravity\scratch\resume-interview-pro\server\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (C:\Users\Mohd saif siddiqui\.gemini\antigravity\scratch\resume-interview-pro\server\node_modules\express\lib\router\index.js:328:13)
+    at C:\Users\Mohd saif siddiqui\.gemini\antigravity\scratch\resume-interview-pro\server\node_modules\express\lib\router\index.js:286:9
+    at router.process_params (C:\Users\Mohd saif siddiqui\.gemini\antigravity\scratch\resume-interview-pro\server\node_modules\express\lib\router\index.js:346:12)
+    at next (C:\Users\Mohd saif siddiqui\.gemini\antigravity\scratch\resume-interview-pro\server\node_modules\express\lib\router\index.js:280:10)
+    at sanitizeXSS (file:///C:/Users/Mohd%20saif%20siddiqui/.gemini/antigravity/scratch/resume-interview-pro/server/middleware/securityMiddleware.js:148:3)
+    at Layer.handle [as handle_request] (C:\Users\Mohd saif siddiqui\.gemini\antigravity\scratch\resume-interview-pro\server\node_modules\express\lib\router\layer.js:95:5)
+    at trim_prefix (C:\Users\Mohd saif siddiqui\.gemini\antigravity\scratch\resume-interview-pro\server\node_modules\express\lib\router\index.js:328:13)
+    at C:\Users\Mohd saif siddiqui\.gemini\antigravity\scratch\resume-interview-pro\server\node_modules\express\lib\router\index.js:286:9
+[2026-08-06 12:18:56] [WARN]: GET /boaform/admin/formTracert/diag_ping.asp 404 3ms | HTTP GET /boaform/admin/formTracert/diag_ping.asp 404
+[2026-08-06 16:14:27] [WARN]: POST /api/v1/interview/generate-questions 401 127ms | HTTP POST /api/v1/interview/generate-questions 401
+[2026-08-06 16:14:27] [WARN]: GET /api/v1/interview/history 401 6ms | HTTP GET /api/v1/interview/history 401
+[2026-08-06 16:14:27] [WARN]: POST /api/v1/interview/generate-questions 401 7ms | HTTP POST /api/v1/interview/generate-questions 401
+[2026-08-06 16:14:27] [WARN]: GET /api/v1/interview/history 401 5ms | HTTP GET /api/v1/interview/history 401
+[2026-08-06 16:14:30] [WARN]: GET /api/v1/resume/versions 401 13ms | HTTP GET /api/v1/resume/versions 401
+[2026-08-06 16:14:30] [WARN]: GET /api/v1/resume/versions 401 12ms | HTTP GET /api/v1/resume/versions 401

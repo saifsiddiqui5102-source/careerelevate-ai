@@ -12,13 +12,22 @@ export const helmetSecurity = (req, res, next) => {
   res.setHeader('X-XSS-Protection', '0');
   res.setHeader(
     'Content-Security-Policy',
-    "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com blob:; connect-src 'self' http://localhost:5000 http://localhost:3000"
+    "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com blob:;
+connect-src 'self'
+http://localhost:5000
+http://localhost:3000
+https://careerelevate-api.onrender.com
+https://careerelevate-ai.netlify.app
   );
   next();
 };
 
 // 2. Strict Whitelisted CORS Configuration
-const allowedOrigins = ['http://localhost:3000', 'http://127.0.0.1:3000'];
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://127.0.0.1:3000',
+  process.env.CLIENT_URL
+].filter(Boolean);
 
 export const corsConfig = (req, res, next) => {
   const origin = req.headers.origin;

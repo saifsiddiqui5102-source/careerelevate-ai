@@ -12,8 +12,7 @@ export const helmetSecurity = (req, res, next) => {
   res.setHeader('X-XSS-Protection', '0');
   res.setHeader(
     'Content-Security-Policy',
-    "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com blob:;
-connect-src 'self'
+    "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com blob:;connect-src 'self'
 http://localhost:5000
 http://localhost:3000
 https://careerelevate-api.onrender.com

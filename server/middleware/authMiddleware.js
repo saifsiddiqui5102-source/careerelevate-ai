@@ -3,8 +3,10 @@ import mongoose from 'mongoose';
 import { User } from '../models/User.js';
 
 export const protect = async (req, res, next) => {
-  console.log("===== AUTH MIDDLEWARE =====");
-  console.log("Authorization Header:", req.headers.authorization);
+console.log("===== AUTH MIDDLEWARE =====");
+console.log("Method:", req.method);
+console.log("URL:", req.originalUrl);
+console.log("Authorization Header:", req.headers.authorization);
 
   let token;
 

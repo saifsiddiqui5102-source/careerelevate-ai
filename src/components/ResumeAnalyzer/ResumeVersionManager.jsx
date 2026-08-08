@@ -32,8 +32,13 @@ export default function ResumeVersionManager() {
   const runComparison = async (id1, id2) => {
     setLoading(true);
     const res = await api.compareResumeVersions(id1, id2);
+
+console.log("COMPARE RESPONSE:", res);
     setLoading(false);
-    if (res && res.success && res.comparison) {
+    console.log("SUCCESS:", res.success);
+console.log("COMPARISON:", res.comparison);
+
+if (res && res.success && res.comparison) {
       setComparison(res.comparison);
       if (res.comparison.improvementPercentage > 0) {
         confetti({ particleCount: 60, spread: 65, origin: { y: 0.6 } });

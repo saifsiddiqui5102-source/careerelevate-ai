@@ -8,6 +8,9 @@ export default function ResumeVersionManager() {
   const [v1Id, setV1Id] = useState('');
   const [v2Id, setV2Id] = useState('');
   const [comparison, setComparison] = useState(null);
+useEffect(() => {
+  console.log("CURRENT COMPARISON STATE:", comparison);
+}, [comparison]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {

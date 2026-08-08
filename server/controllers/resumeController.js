@@ -154,62 +154,63 @@ export const getResumeVersions = async (req, res, next) => {
     next(error);
   }
 };
-
-export const compareResumeVersions = async (req, res, next) => {
+export const compareResumeVersions = async (req, res) => {
   try {
     const { version1Id, version2Id } = req.body;
 
-console.log("Request Body:", req.body);
-console.log("Version IDs:", version1Id, version2Id);
+    console.log("Request Body:", req.body);
+    console.log("Version IDs:", version1Id, version2Id);
 
-import mongoose from "mongoose";
+    let v1 = null;
+    let v2 = null;
 
-let v1 = null;
-let v2 = null;
+    if (
+      isDbConnected() &&
+      mongoose.Types.ObjectId.isValid(version1Id)
+    ) {
+      v1 = await Resume.findById(version1Id);
+    }
 
-if (
-  isDbConnected() &&
-  mongoose.Types.ObjectId.isValid(version1Id)
-) {
-  v1 = await Resume.findById(version1Id);
-}
-
-if (
-  isDbConnected() &&
-  mongoose.Types.ObjectId.isValid(version2Id)
-) {
-  v2 = await Resume.findById(version2Id);
-}
+    if (
+      isDbConnected() &&
+      mongoose.Types.ObjectId.isValid(version2Id)
+    ) {
+      v2 = await Resume.findById(version2Id);
+    }
 
     if (!v1) {
       v1 = {
-        _id: 'v-101',
+        _id: "v-101",
         versionNumber: 1,
-        versionName: 'v1.0 - Initial Draft Upload',
-        filename: 'Alex_Dev_Resume_v1.pdf',
+        versionName: "v1.0 - Initial Draft Upload",
+        filename: "Alex_Dev_Resume_v1.pdf",
         overallScore: 72,
         metricsCount: 3,
-        actionVerbCount: 4
+        actionVerbCount: 4,
       };
     }
+
     if (!v2) {
       v2 = {
-        _id: 'v-102',
+        _id: "v-102",
         versionNumber: 2,
-        versionName: 'v2.0 - Optimized with STAR Bullets',
-        filename: 'Alex_Dev_Resume_v2.pdf',
+        versionName: "v2.0 - Optimized with STAR Bullets",
+        filename: "Alex_Dev_Resume_v2.pdf",
         overallScore: 88,
         metricsCount: 7,
-        actionVerbCount: 9
+        actionVerbCount: 9,
       };
     }
 
     const scoreDiff = v2.overallScore - v1.overallScore;
-    const improvementPercentage = Math.round((scoreDiff / Math.max(1, v1.overallScore)) * 100);
+    const improvementPercentage = Math.round(
+      (scoreDiff / Math.max(1, v1.overallScore)) * 100
+    );
+
     const metricDiff = v2.metricsCount - v1.metricsCount;
     const verbDiff = v2.actionVerbCount - v1.actionVerbCount;
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       comparison: {
         version1: v1,
@@ -218,20 +219,25 @@ if (
         improvementPercentage,
         metricDiff,
         verbDiff,
-        resolvedSkills: ['GraphQL', 'AWS Lambda', 'Redis Caching'],
-        summary: improvementPercentage >= 0 
-          ? `🎉 Version ${v2.versionNumber}.0 achieved a +${improvementPercentage}% ATS score improvement over Version ${v1.versionNumber}.0!`
-          : `Version ${v2.versionNumber}.0 score is ${improvementPercentage}% lower than Version ${v1.versionNumber}.0.`
-      }
+        resolvedSkills: [
+          "GraphQL",
+          "AWS Lambda",
+          "Redis Caching",
+        ],
+        summary:
+          improvementPercentage >= 0
+            ? `🎉 Version ${v2.versionNumber}.0 achieved a +${improvementPercentage}% ATS score improvement over Version ${v1.versionNumber}.0!`
+            : `Version ${v2.versionNumber}.0 score is ${Math.abs(improvementPercentage)}% lower than Version ${v1.versionNumber}.0.`,
+      },
     });
   } catch (error) {
-  console.error("COMPARE ERROR:", error);
-  res.status(500).json({
-    success: false,
-    message: error.message,
-    stack: error.stack
-  });
-}
+    console.error("COMPARE ERROR:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
 };
 
 export const getResumeById = async (req, res, next) => {

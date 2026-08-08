@@ -28,7 +28,8 @@ console.log("Decoded Token:", decoded);
           targetRole: 'Senior Software Engineer'
         };
       }
-      return next();
+console.log("Authenticated User:", req.user);
+return next();
 console.log("JWT ERROR:", error.message);
 } catch (error) {
       console.error('JWT Auth Error:', error.message);

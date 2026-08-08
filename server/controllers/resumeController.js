@@ -225,8 +225,13 @@ if (
       }
     });
   } catch (error) {
-    next(error);
-  }
+  console.error("COMPARE ERROR:", error);
+  res.status(500).json({
+    success: false,
+    message: error.message,
+    stack: error.stack
+  });
+}
 };
 
 export const getResumeById = async (req, res, next) => {

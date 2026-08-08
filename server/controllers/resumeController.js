@@ -161,22 +161,31 @@ export const compareResumeVersions = async (req, res) => {
     console.log("Request Body:", req.body);
     console.log("Version IDs:", version1Id, version2Id);
 
-    let v1 = null;
-    let v2 = null;
+let v1 = null;
+let v2 = null;
 
-    if (
-      isDbConnected() &&
-      mongoose.Types.ObjectId.isValid(version1Id)
-    ) {
-      v1 = await Resume.findById(version1Id);
-    }
+console.log("Checking ObjectIds...");
 
-    if (
-      isDbConnected() &&
-      mongoose.Types.ObjectId.isValid(version2Id)
-    ) {
-      v2 = await Resume.findById(version2Id);
-    }
+console.log("version1 valid:", mongoose.Types.ObjectId.isValid(version1Id));
+console.log("version2 valid:", mongoose.Types.ObjectId.isValid(version2Id));
+
+if (
+  isDbConnected() &&
+  mongoose.Types.ObjectId.isValid(version1Id)
+) {
+  console.log("Finding v1...");
+  v1 = await Resume.findById(version1Id);
+}
+
+if (
+  isDbConnected() &&
+  mongoose.Types.ObjectId.isValid(version2Id)
+) {
+  console.log("Finding v2...");
+  v2 = await Resume.findById(version2Id);
+}
+
+console.log("Finished database lookup");
 
     if (!v1) {
       v1 = {

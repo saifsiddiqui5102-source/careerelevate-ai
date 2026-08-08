@@ -162,8 +162,24 @@ export const compareResumeVersions = async (req, res, next) => {
 console.log("Request Body:", req.body);
 console.log("Version IDs:", version1Id, version2Id);
 
-    let v1 = isDbConnected() ? await Resume.findById(version1Id) : null;
-    let v2 = isDbConnected() ? await Resume.findById(version2Id) : null;
+import mongoose from "mongoose";
+
+let v1 = null;
+let v2 = null;
+
+if (
+  isDbConnected() &&
+  mongoose.Types.ObjectId.isValid(version1Id)
+) {
+  v1 = await Resume.findById(version1Id);
+}
+
+if (
+  isDbConnected() &&
+  mongoose.Types.ObjectId.isValid(version2Id)
+) {
+  v2 = await Resume.findById(version2Id);
+}
 
     if (!v1) {
       v1 = {

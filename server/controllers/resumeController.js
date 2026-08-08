@@ -159,6 +159,9 @@ export const compareResumeVersions = async (req, res, next) => {
   try {
     const { version1Id, version2Id } = req.body;
 
+console.log("Request Body:", req.body);
+console.log("Version IDs:", version1Id, version2Id);
+
     let v1 = isDbConnected() ? await Resume.findById(version1Id) : null;
     let v2 = isDbConnected() ? await Resume.findById(version2Id) : null;
 

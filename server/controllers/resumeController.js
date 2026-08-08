@@ -186,6 +186,7 @@ if (
 }
 
 console.log("Finished database lookup");
+console.log("Creating fallback objects...");
 
     if (!v1) {
       v1 = {
@@ -210,6 +211,8 @@ console.log("Finished database lookup");
         actionVerbCount: 9,
       };
     }
+console.log("Fallback objects created");
+console.log("Calculating comparison...");
 
     const scoreDiff = v2.overallScore - v1.overallScore;
     const improvementPercentage = Math.round(
@@ -218,6 +221,8 @@ console.log("Finished database lookup");
 
     const metricDiff = v2.metricsCount - v1.metricsCount;
     const verbDiff = v2.actionVerbCount - v1.actionVerbCount;
+console.log("Calculation complete");
+console.log("Sending response...");
 
     return res.status(200).json({
       success: true,

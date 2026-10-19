@@ -1,5 +1,5 @@
 import React from 'react';
-import { Award, AlertTriangle, CheckCircle2, FileText, Zap, BarChart2, ShieldAlert, Download, DollarSign, Briefcase, Lightbulb, Compass, BookOpen, Sparkles } from 'lucide-react';
+import { Award, AlertTriangle, CheckCircle2, FileText, Zap, BarChart2, ShieldAlert, Download, IndianRupee, Briefcase, Lightbulb, Compass, BookOpen, Sparkles } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 export default function AnalysisResults({ analysisData, resumeTitle }) {
@@ -168,14 +168,16 @@ export default function AnalysisResults({ analysisData, resumeTitle }) {
         {/* Market Salary Range Card */}
         <div className="glass-card rounded-2xl p-6 border border-emerald-500/30 bg-emerald-500/5">
           <div className="flex items-center gap-2 mb-3">
-            <DollarSign className="w-5 h-5 text-emerald-400" />
+            <IndianRupee className="w-5 h-5 text-emerald-400" />
             <h4 className="font-heading font-bold text-base text-white">Estimated Market Salary Benchmark</h4>
           </div>
           <div className="text-2xl font-black text-emerald-400 mb-2 font-mono">
-            {salaryRange || '$145,000 – $185,000 USD / year'}
+            {(!salaryRange || salaryRange.includes('$') || salaryRange.includes('USD')) 
+              ? '₹18,00,000 – ₹28,00,000 INR / year (18 – 28 LPA)' 
+              : salaryRange}
           </div>
           <p className="text-xs text-slate-400">
-            Derived from current senior role market compensation benchmarks across US Tech hubs (SF, NY, Austin).
+            Derived from current senior role market compensation benchmarks across top Indian tech hubs (Bengaluru, Hyderabad, Pune, NCR).
           </p>
         </div>
 

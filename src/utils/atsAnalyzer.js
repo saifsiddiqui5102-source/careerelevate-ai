@@ -144,7 +144,7 @@ export function analyzeResume(text) {
       "Lead Systems Architect",
       "Staff Platform Engineer"
     ],
-    salaryRange: "$145,000 – $185,000 USD / year",
+    salaryRange: "₹18,00,000 – ₹28,00,000 INR / year (18 – 28 LPA)",
     learningRoadmap: {
       stage1: "Days 1–30: Master GraphQL & Redis caching strategies to optimize backend response latency.",
       stage2: "Days 31–60: Deepen hands-on experience with Kubernetes, Docker sharding, and AWS Lambda microservices.",

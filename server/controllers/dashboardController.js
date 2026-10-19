@@ -111,7 +111,7 @@ export const getDashboardSummary = async (req, res, next) => {
         'Practice 3 system design mock interviews focusing on 100M DAU caching architectures.',
         'Upgrade experience bullet points with quantified dollar savings metrics ($).'
       ],
-      overallCareerAdvice: 'Candidate profile demonstrates exceptional technical execution. Focus on quantifying business ROI in bullet points to unlock Staff Engineer salary tiers ($165k-$195k).'
+      overallCareerAdvice: 'Candidate profile demonstrates exceptional technical execution. Focus on quantifying business ROI in bullet points to unlock Staff Engineer salary tiers (₹35 LPA - ₹50 LPA).'
     };
 
     // 5. CAREER PROGRESS WIDGET

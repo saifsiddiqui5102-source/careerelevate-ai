@@ -154,77 +154,43 @@ export const getResumeVersions = async (req, res, next) => {
     next(error);
   }
 };
-export const compareResumeVersions = async (req, res) => {
+
+export const compareResumeVersions = async (req, res, next) => {
   try {
     const { version1Id, version2Id } = req.body;
 
-    console.log("Request Body:", req.body);
-    console.log("Version IDs:", version1Id, version2Id);
-
-let v1 = null;
-let v2 = null;
-
-console.log("Checking ObjectIds...");
-
-console.log("version1 valid:", mongoose.Types.ObjectId.isValid(version1Id));
-console.log("version2 valid:", mongoose.Types.ObjectId.isValid(version2Id));
-
-if (
-  isDbConnected() &&
-  mongoose.Types.ObjectId.isValid(version1Id)
-) {
-  console.log("Finding v1...");
-  v1 = await Resume.findById(version1Id);
-}
-
-if (
-  isDbConnected() &&
-  mongoose.Types.ObjectId.isValid(version2Id)
-) {
-  console.log("Finding v2...");
-  v2 = await Resume.findById(version2Id);
-}
-
-console.log("Finished database lookup");
-console.log("Creating fallback objects...");
+    let v1 = isDbConnected() ? await Resume.findById(version1Id) : null;
+    let v2 = isDbConnected() ? await Resume.findById(version2Id) : null;
 
     if (!v1) {
       v1 = {
-        _id: "v-101",
+        _id: 'v-101',
         versionNumber: 1,
-        versionName: "v1.0 - Initial Draft Upload",
-        filename: "Alex_Dev_Resume_v1.pdf",
+        versionName: 'v1.0 - Initial Draft Upload',
+        filename: 'Alex_Dev_Resume_v1.pdf',
         overallScore: 72,
         metricsCount: 3,
-        actionVerbCount: 4,
+        actionVerbCount: 4
       };
     }
-
     if (!v2) {
       v2 = {
-        _id: "v-102",
+        _id: 'v-102',
         versionNumber: 2,
-        versionName: "v2.0 - Optimized with STAR Bullets",
-        filename: "Alex_Dev_Resume_v2.pdf",
+        versionName: 'v2.0 - Optimized with STAR Bullets',
+        filename: 'Alex_Dev_Resume_v2.pdf',
         overallScore: 88,
         metricsCount: 7,
-        actionVerbCount: 9,
+        actionVerbCount: 9
       };
     }
-console.log("Fallback objects created");
-console.log("Calculating comparison...");
 
     const scoreDiff = v2.overallScore - v1.overallScore;
-    const improvementPercentage = Math.round(
-      (scoreDiff / Math.max(1, v1.overallScore)) * 100
-    );
-
+    const improvementPercentage = Math.round((scoreDiff / Math.max(1, v1.overallScore)) * 100);
     const metricDiff = v2.metricsCount - v1.metricsCount;
     const verbDiff = v2.actionVerbCount - v1.actionVerbCount;
-console.log("Calculation complete");
-console.log("Sending response...");
 
-    return res.status(200).json({
+    res.status(200).json({
       success: true,
       comparison: {
         version1: v1,
@@ -233,24 +199,14 @@ console.log("Sending response...");
         improvementPercentage,
         metricDiff,
         verbDiff,
-        resolvedSkills: [
-          "GraphQL",
-          "AWS Lambda",
-          "Redis Caching",
-        ],
-        summary:
-          improvementPercentage >= 0
-            ? `🎉 Version ${v2.versionNumber}.0 achieved a +${improvementPercentage}% ATS score improvement over Version ${v1.versionNumber}.0!`
-            : `Version ${v2.versionNumber}.0 score is ${Math.abs(improvementPercentage)}% lower than Version ${v1.versionNumber}.0.`,
-      },
+        resolvedSkills: ['GraphQL', 'AWS Lambda', 'Redis Caching'],
+        summary: improvementPercentage >= 0 
+          ? `🎉 Version ${v2.versionNumber}.0 achieved a +${improvementPercentage}% ATS score improvement over Version ${v1.versionNumber}.0!`
+          : `Version ${v2.versionNumber}.0 score is ${improvementPercentage}% lower than Version ${v1.versionNumber}.0.`
+      }
     });
   } catch (error) {
-    console.error("COMPARE ERROR:", error);
-
-    return res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+    next(error);
   }
 };
 

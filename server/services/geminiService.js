@@ -37,7 +37,7 @@ Respond STRICTLY with valid JSON in the following exact schema:
   "formattingSuggestions": [string],
   "industrySuggestions": [string],
   "jobRoleSuggestions": [string],
-  "salaryRange": string,
+  "salaryRange": string (e.g. "₹18,00,000 – ₹28,00,000 INR / year (18 – 28 LPA) based on Indian tech market benchmarks"),
   "learningRoadmap": {
     "stage1": string,
     "stage2": string,
@@ -119,7 +119,7 @@ Respond STRICTLY with valid JSON in the following exact schema:
       "Lead Systems Architect",
       "Staff Platform Engineer"
     ],
-    salaryRange: "$145,000 – $185,000 USD / year",
+    salaryRange: "₹18,00,000 – ₹28,00,000 INR / year (18 – 28 LPA)",
     learningRoadmap: {
       stage1: "Days 1–30: Master GraphQL & Redis caching strategies to optimize backend response latency.",
       stage2: "Days 31–60: Deepen hands-on experience with Kubernetes, Docker sharding, and AWS Lambda microservices.",

@@ -271,24 +271,33 @@ Respond STRICTLY with valid JSON in the following schema:
   };
 }
 
-export async function generateMockInterviewEvaluation(question, candidateAnswer) {
+export async function generateMockInterviewEvaluation(question, candidateAnswer, options = {}) {
+  const { role = 'Software Engineering', difficulty = 'Intermediate', category = 'Technical' } = options;
   if (aiClient) {
     try {
       const model = aiClient.getGenerativeModel({ model: 'gemini-1.5-flash' });
-      const prompt = `You are a Senior Principal Interviewer. Evaluate this candidate response.
-QUESTION: "${question}"
+      const prompt = `You are a Senior Principal Interviewer and hiring manager evaluating a candidate response for a ${role} position (${difficulty} level, ${category} interview).
+QUESTION ASKED: "${question}"
 CANDIDATE ANSWER: "${candidateAnswer}"
 
-Return JSON:
+Critically evaluate this response based on:
+1. Relevance to the specific question asked (0-100).
+2. Clarity, structure, and communication effectiveness (0-100).
+3. Technical depth, domain accuracy, and architectural reasoning (0-100).
+4. STAR framework implementation (Situation, Task, Action, Result) if applicable (0-100).
+
+Return strictly valid JSON in this exact schema without any markdown wrapping:
 {
-  "score": number (0-100),
-  "clarityScore": number,
-  "techDepthScore": number,
-  "starScore": number,
-  "relevanceScore": number,
-  "feedback": string,
-  "keyStrengths": [string],
-  "improvementTip": string
+  "score": number (0-100 overall composite score),
+  "clarityScore": number (0-100),
+  "techDepthScore": number (0-100),
+  "starScore": number (0-100),
+  "relevanceScore": number (0-100),
+  "feedback": string (concise 2-3 sentence constructive critique),
+  "keyStrengths": [string] (2-3 concrete positive highlights from their answer),
+  "weaknesses": [string] (1-2 specific missing items or areas needing depth),
+  "improvementTip": string (specific actionable suggestion to elevate this answer to 95%+),
+  "sampleAnswer": string (concise 10/10 benchmark response for this question)
 }`;
 
       const result = await model.generateContent(prompt);
@@ -296,25 +305,68 @@ Return JSON:
       const textOutput = response.text();
       const jsonMatch = textOutput.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
-        return JSON.parse(jsonMatch[0]);
+        const parsed = JSON.parse(jsonMatch[0]);
+        return {
+          ...parsed,
+          evaluatedBy: 'Google Gemini 1.5 AI Engine'
+        };
       }
     } catch (err) {
       console.warn('Gemini Mock Eval Fallback:', err.message);
     }
   }
 
-  const wordCount = candidateAnswer.trim().split(/\s+/).length;
-  const score = wordCount > 35 ? 88 : 72;
+  // Robust Heuristic Engine for Offline / Fallback Evaluation
+  const text = candidateAnswer.trim();
+  const words = text.split(/\s+/).filter(Boolean);
+  const wordCount = words.length;
+  const lower = text.toLowerCase();
+
+  // Keyword & heuristic detection
+  const starKeywords = ['situation', 'task', 'action', 'result', 'because', 'implemented', 'achieved', 'led', 'designed', 'optimized', 'resolved', 'impact', 'metrics'];
+  const techKeywords = ['architecture', 'api', 'database', 'system', 'scale', 'latency', 'cache', 'security', 'test', 'framework', 'performance', 'data', 'algorithm', 'cloud', 'user', 'service', 'state', 'component', 'pipeline', 'deployment'];
+  const metricsPattern = /\b(\d+(\.\d+)?%|\$\d+|₹\d+|\d+\s*(ms|seconds|minutes|hours|users|req|k|m|million|billion|gb|tb|lpa))\b/gi;
+
+  const hasMetrics = metricsPattern.test(text);
+  const starHits = starKeywords.filter(k => lower.includes(k)).length;
+  const techHits = techKeywords.filter(k => lower.includes(k)).length;
+
+  let clarityScore = Math.min(95, Math.max(50, Math.round(wordCount >= 35 ? 82 + Math.min(12, (wordCount - 35) / 5) : 55 + (wordCount / 35) * 25)));
+  let techDepthScore = Math.min(95, Math.max(50, 65 + techHits * 6 + (hasMetrics ? 8 : 0)));
+  let starScore = Math.min(95, Math.max(50, 60 + starHits * 7 + (hasMetrics ? 10 : 0)));
+  let relevanceScore = wordCount >= 25 ? 86 : 64;
+
+  const score = Math.round((clarityScore * 0.25) + (techDepthScore * 0.3) + (starScore * 0.25) + (relevanceScore * 0.2));
+
+  const strengths = [];
+  if (wordCount >= 35) strengths.push('Sufficient detail and contextual explanation provided');
+  if (techHits > 0) strengths.push('Effectively incorporated relevant domain technical terminology');
+  if (hasMetrics) strengths.push('Quantified business or engineering impact with measurable metrics');
+  if (starHits >= 2) strengths.push('Followed structured reasoning highlighting specific actions taken');
+  if (strengths.length === 0) strengths.push('Direct response addressing the primary question prompt');
+
+  const weaknesses = [];
+  if (wordCount < 40) weaknesses.push('Response is relatively brief; elaborate further on your individual technical decisions');
+  if (!hasMetrics) weaknesses.push('Missing quantifiable figures or benchmarks (e.g. % performance increase, latency reduction)');
+  if (starHits < 2) weaknesses.push('Could benefit from stronger STAR structure (Situation -> Task -> Action -> Result)');
+
   return {
     score,
-    clarityScore: score > 80 ? 90 : 70,
-    techDepthScore: 85,
-    starScore: wordCount > 40 ? 88 : 65,
-    relevanceScore: 85,
-    feedback: wordCount > 35
-      ? 'Strong articulate answer! You effectively addressed technical trade-offs and structural constraints.'
-      : 'Good effort. Expand your response using the STAR method (Situation, Task, Action, Result).',
-    keyStrengths: ['Articulate communication', 'Identified key domain concepts'],
-    improvementTip: 'Mention quantifiable impact metrics (% performance speedup or revenue saved).'
+    clarityScore,
+    techDepthScore,
+    starScore,
+    relevanceScore,
+    feedback: score >= 85
+      ? 'Strong, articulate answer! You effectively covered key concepts with solid structural reasoning.'
+      : score >= 70
+      ? 'Good foundation. Expand on specific trade-offs and quantify your achievements with concrete metrics.'
+      : 'Response needs more depth. Use the STAR method to detail the situation, specific actions taken, and the measurable outcome.',
+    keyStrengths: strengths,
+    weaknesses: weaknesses,
+    improvementTip: !hasMetrics
+      ? 'Add at least one quantifiable metric (e.g., "reduced latency by 35%" or "served 50,000 active users").'
+      : 'Explicitly discuss architectural trade-offs considered and why you chose your final approach.',
+    sampleAnswer: 'A high-impact response starts with clear context, specifies the technical bottleneck, details the design decisions and implementation you executed, and concludes with verified performance or business ROI metrics.',
+    evaluatedBy: 'Local Semantic Heuristics Engine (Offline Fallback)'
   };
 }

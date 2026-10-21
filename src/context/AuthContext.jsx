@@ -52,14 +52,19 @@ export function AuthProvider({ children }) {
   const [activeResume, setActiveResume] = useState(null);
   const [interviewHistory, setInterviewHistory] = useState(() => {
     const savedHist = localStorage.getItem('careerelevate_interviews');
-    return savedHist ? JSON.parse(savedHist) : [
+    if (savedHist) {
+      try { return JSON.parse(savedHist); } catch { /* fallthrough */ }
+    }
+    // Seed with one real-looking session so dashboard shows data right away
+    return [
       {
         id: 'sess-1',
-        date: '2026-07-28',
+        date: new Date(Date.now() - 2 * 86400000).toISOString(), // 2 days ago
+        createdAt: new Date(Date.now() - 2 * 86400000).toISOString(),
         role: 'Full Stack Engineer',
         score: 86,
         questionsCount: 4,
-        feedbackSummary: 'Excellent technical depth on System Design; ensure STAR framework structure for behavioral questions.'
+        feedbackSummary: 'Excellent technical depth on System Design; ensure STAR framework structure for behavioral questions.',
       }
     ];
   });
@@ -145,7 +150,12 @@ export function AuthProvider({ children }) {
   };
 
   const addInterviewSession = (session) => {
-    setInterviewHistory(prev => [session, ...prev]);
+    const enriched = {
+      ...session,
+      createdAt: session.createdAt || new Date().toISOString(),
+      date: session.date || new Date().toISOString(),
+    };
+    setInterviewHistory(prev => [enriched, ...prev]);
     setUser(prev => ({
       ...prev,
       completedInterviewsCount: (prev.completedInterviewsCount || 0) + 1,

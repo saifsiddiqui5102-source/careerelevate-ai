@@ -104,7 +104,11 @@ app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 
-if (process.env.NODE_ENV !== 'test') {
+const isTestEnv = process.env.NODE_ENV === 'test' || 
+                  Boolean(process.env.NODE_TEST_CONTEXT) || 
+                  process.argv.some(arg => arg.includes('test'));
+
+if (!isTestEnv) {
   app.listen(PORT, () => {
     logger.info(`🚀 Express Security-Hardened Server running on port ${PORT}`);
     logger.info(`📘 Interactive Swagger API Specs available at http://localhost:${PORT}/api-docs`);

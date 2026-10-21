@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import { InterviewSession } from '../models/InterviewSession.js';
 import { Question } from '../models/Question.js';
+import { User } from '../models/User.js';
 import { generateDynamicInterviewQuestions, generateMockInterviewEvaluation } from '../services/geminiService.js';
 
 const isDbConnected = () => mongoose.connection.readyState === 1;
@@ -85,13 +86,17 @@ export const generateQuestions = async (req, res, next) => {
 
 export const evaluateAnswer = async (req, res, next) => {
   try {
-    const { question, candidateAnswer, role } = req.body;
+    const { question, candidateAnswer, role, difficulty, category } = req.body;
 
     if (!question || !candidateAnswer) {
       return res.status(400).json({ success: false, message: 'Question and candidate answer are required' });
     }
 
-    const evaluation = await generateMockInterviewEvaluation(question, candidateAnswer);
+    const evaluation = await generateMockInterviewEvaluation(question, candidateAnswer, {
+      role,
+      difficulty,
+      category
+    });
 
     res.status(200).json({
       success: true,
@@ -102,10 +107,63 @@ export const evaluateAnswer = async (req, res, next) => {
   }
 };
 
+export const saveInterviewSession = async (req, res, next) => {
+  try {
+    const userId = req.user ? req.user._id : null;
+    const { role, score, questionsCount, feedbackSummary, transcript, category, difficulty } = req.body;
+
+    let savedSession = null;
+    if (isDbConnected() && userId) {
+      savedSession = await InterviewSession.create({
+        userId,
+        role: role || 'Software Engineering',
+        score: Number(score) || 80,
+        questionsCount: Number(questionsCount) || (transcript ? transcript.length : 1),
+        feedbackSummary: feedbackSummary || 'Completed AI Mock Interview session with constructive scoring.',
+        category: category || 'Comprehensive Mix',
+        difficulty: difficulty || 'Intermediate',
+        transcript: transcript || []
+      });
+
+      // Update User profile readiness metrics
+      try {
+        const user = await User.findById(userId);
+        if (user) {
+          user.completedInterviewsCount = (user.completedInterviewsCount || 0) + 1;
+          user.readinessScore = Math.min(98, Math.round(((user.readinessScore || 75) * 0.9) + (Number(score) * 0.1)));
+          await user.save();
+        }
+      } catch (userErr) {
+        console.warn('Failed to update user readiness metric:', userErr.message);
+      }
+    } else {
+      savedSession = {
+        _id: `sess-${Date.now()}`,
+        role: role || 'Software Engineering',
+        score: Number(score) || 80,
+        questionsCount: Number(questionsCount) || (transcript ? transcript.length : 1),
+        feedbackSummary: feedbackSummary || 'Completed AI Mock Interview session with constructive scoring.',
+        category: category || 'Comprehensive Mix',
+        difficulty: difficulty || 'Intermediate',
+        transcript: transcript || [],
+        createdAt: new Date()
+      };
+    }
+
+    res.status(201).json({
+      success: true,
+      message: 'Interview session saved successfully',
+      session: savedSession
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const getInterviewHistory = async (req, res, next) => {
   try {
-    const userId = req.user._id;
-    let history = isDbConnected() ? await InterviewSession.find({ userId }).sort({ createdAt: -1 }) : [];
+    const userId = req.user ? req.user._id : null;
+    let history = (isDbConnected() && userId) ? await InterviewSession.find({ userId }).sort({ createdAt: -1 }) : [];
 
     if (history.length === 0) {
       history = [

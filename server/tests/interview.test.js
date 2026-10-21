@@ -1,12 +1,17 @@
 process.env.NODE_ENV = 'test';
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import jwt from 'jsonwebtoken';
 import app from '../server.js';
 
 test('AI Interview Prep API v1 Endpoints (/api/v1/interview)', async (t) => {
   let server;
   let port;
-  const dummyToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Im1lbS11c3ItMTc4NTc4NjQ3Mjg3MSIsImlhdCI6MTc4NTc4NjQ4OSwiZXhwIjoxNzg2MzkxMjg5fQ.YpS8DFA412jwhyVC0DDv2da91OgFYtsnfQUgN0Ch0r4';
+  const dummyToken = jwt.sign(
+    { id: 'mem-usr-101' },
+    process.env.JWT_SECRET || 'careerelevate_super_secret_jwt_key_2026_pro',
+    { expiresIn: '7d' }
+  );
 
   await t.test('Start test HTTP server instance', async () => {
     server = app.listen(0);
@@ -74,6 +79,39 @@ test('AI Interview Prep API v1 Endpoints (/api/v1/interview)', async (t) => {
     assert.equal(res.status, 200);
     assert.equal(data.success, true);
     assert.ok(Array.isArray(data.history));
+  });
+
+  await t.test('POST /api/v1/interview/session - Positive Case: Saves completed mock interview session', async () => {
+    const res = await fetch(`http://localhost:${port}/api/v1/interview/session`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${dummyToken}`
+      },
+      body: JSON.stringify({
+        role: 'Full Stack Engineer',
+        difficulty: 'Intermediate',
+        category: 'Technical & Coding',
+        overallScore: 85,
+        questionsCount: 3,
+        feedbackSummary: 'Solid STAR structure and strong technical depth.',
+        evaluations: [
+          { question: 'Explain React Virtual DOM', overallScore: 88, feedback: 'Accurate and concise.' }
+        ]
+      })
+    });
+
+    const data = await res.json();
+    assert.equal(res.status, 201);
+    assert.equal(data.success, true);
+    assert.ok(data.session);
+  });
+
+  await t.test('GET /api/v1/interview/history - Negative Case: Rejects unauthenticated request', async () => {
+    const res = await fetch(`http://localhost:${port}/api/v1/interview/history`, {
+      method: 'GET'
+    });
+    assert.equal(res.status, 401);
   });
 
   await t.test('Teardown test HTTP server instance', async () => {

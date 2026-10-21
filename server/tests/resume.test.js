@@ -1,12 +1,17 @@
 process.env.NODE_ENV = 'test';
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import jwt from 'jsonwebtoken';
 import app from '../server.js';
 
 test('Resume Management API v1 Endpoints (/api/v1/resume)', async (t) => {
   let server;
   let port;
-  const dummyToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Im1lbS11c3ItMTc4NTc4NjQ3Mjg3MSIsImlhdCI6MTc4NTc4NjQ4OSwiZXhwIjoxNzg2MzkxMjg5fQ.YpS8DFA412jwhyVC0DDv2da91OgFYtsnfQUgN0Ch0r4';
+  const dummyToken = jwt.sign(
+    { id: 'mem-usr-101' },
+    process.env.JWT_SECRET || 'careerelevate_super_secret_jwt_key_2026_pro',
+    { expiresIn: '7d' }
+  );
 
   await t.test('Start test HTTP server instance', async () => {
     server = app.listen(0);

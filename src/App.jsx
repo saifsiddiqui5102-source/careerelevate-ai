@@ -14,6 +14,7 @@ import ResumeVersionManager from './components/ResumeAnalyzer/ResumeVersionManag
 import MockInterview from './components/InterviewPrep/MockInterview';
 import QuestionBank from './components/InterviewPrep/QuestionBank';
 import Flashcards from './components/InterviewPrep/Flashcards';
+import InterviewPreparationToolkit from './components/InterviewPrep/InterviewPreparationToolkit';
 
 // Dashboard subcomponent
 import ReadinessDashboard from './components/Dashboard/ReadinessDashboard';
@@ -22,6 +23,7 @@ import ReadinessDashboard from './components/Dashboard/ReadinessDashboard';
 import UserProfile from './components/Profile/UserProfile';
 
 import { analyzeResume } from './utils/atsAnalyzer';
+import { saveAnalysisToHistory } from './utils/dashboardMetrics';
 import { AuthProvider } from './context/AuthContext';
 import { SAMPLE_RESUMES } from './data/sampleResumes';
 
@@ -38,6 +40,11 @@ function MainApp() {
   useEffect(() => {
     const data = analyzeResume(SAMPLE_RESUMES[0].rawText);
     setAnalysisData(data);
+    // Seed initial ATS history entry if none exists
+    const existing = localStorage.getItem('careerelevate_ats_history');
+    if (!existing || JSON.parse(existing).length === 0) {
+      saveAnalysisToHistory(data.overallScore, SAMPLE_RESUMES[0].title);
+    }
   }, []);
 
   const handleRunAnalysis = (text, title) => {
@@ -48,6 +55,8 @@ function MainApp() {
     setTimeout(() => {
       const data = analyzeResume(text);
       setAnalysisData(data);
+      // Save every real analysis to history so dashboard can read it
+      saveAnalysisToHistory(data.overallScore, title || resumeTitle);
       setIsAnalyzing(false);
     }, 800);
   };
@@ -90,8 +99,21 @@ function MainApp() {
           {/* TAB 2: AI INTERVIEW PREP */}
           {activeTab === 'interview' && (
             <div className="space-y-8">
-              <MockInterview />
+              <MockInterview
+                onNavigateToQuestions={() => {
+                  const qEl = document.getElementById('question-bank-section');
+                  if (qEl) qEl.scrollIntoView({ behavior: 'smooth' });
+                }}
+              />
               <QuestionBank />
+              <InterviewPreparationToolkit
+                onNavigateToMock={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                onNavigateToQuestions={() => {
+                  const qEl = document.getElementById('question-bank-section');
+                  if (qEl) qEl.scrollIntoView({ behavior: 'smooth' });
+                }}
+                onNavigateToFlashcards={() => setActiveTab('flashcards')}
+              />
             </div>
           )}
 

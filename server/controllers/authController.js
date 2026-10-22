@@ -27,9 +27,7 @@ export const getMemoryUserById = (id) => {
 
 let forceDbOfflineForTesting = false;
 export const __setDbOfflineForTesting = (offline) => {
-  if (process.env.NODE_ENV === 'test') {
-    forceDbOfflineForTesting = offline;
-  }
+  forceDbOfflineForTesting = Boolean(offline);
 };
 
 const isDbConnected = () => !forceDbOfflineForTesting && mongoose.connection.readyState === 1;
@@ -147,7 +145,7 @@ export const register = async (req, res, next) => {
       if (process.env.NODE_ENV === 'production') {
         return res.status(500).json({
           success: false,
-          message: 'Failed to dispatch verification email. Please check your email configuration.'
+          message: 'Account created, but verification email delivery failed. Please ensure SMTP_USER and SMTP_PASS are configured in server settings.'
         });
       }
     }
@@ -232,7 +230,7 @@ export const login = async (req, res, next) => {
       if (process.env.NODE_ENV === 'production') {
         return res.status(500).json({
           success: false,
-          message: 'Failed to dispatch verification code email. Please try again later.'
+          message: 'Credentials verified, but verification email delivery failed. Please ensure SMTP_USER and SMTP_PASS are configured in server settings.'
         });
       }
     }
@@ -448,7 +446,7 @@ export const resendOTP = async (req, res, next) => {
       if (process.env.NODE_ENV === 'production') {
         return res.status(500).json({
           success: false,
-          message: 'Failed to dispatch verification code email.'
+          message: 'Failed to dispatch verification code email. Please ensure SMTP_USER and SMTP_PASS are configured in server settings.'
         });
       }
     }
@@ -510,7 +508,10 @@ export const forgotPassword = async (req, res, next) => {
       await sendPasswordResetEmail(user.email, resetUrl, user.name);
     } catch (emailErr) {
       if (process.env.NODE_ENV === 'production') {
-        return res.status(500).json({ success: false, message: 'Failed to send password reset email.' });
+        return res.status(500).json({
+          success: false,
+          message: 'Failed to send password reset email. Please ensure SMTP_USER and SMTP_PASS are configured in server settings.'
+        });
       }
     }
 

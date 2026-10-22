@@ -12,22 +12,49 @@ export const helmetSecurity = (req, res, next) => {
   res.setHeader('X-XSS-Protection', '0');
   res.setHeader(
     'Content-Security-Policy',
-    "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com blob:; connect-src 'self' http://localhost:5000 http://localhost:3000"
+    "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com blob:; connect-src 'self' https://*.onrender.com https://*.netlify.app http://localhost:* http://127.0.0.1:*"
   );
   next();
 };
 
-// 2. Strict Whitelisted CORS Configuration
-const allowedOrigins = ['http://localhost:3000', 'http://127.0.0.1:3000'];
+// 2. Comprehensive Whitelisted CORS Configuration
+const allowedOriginPatterns = [
+  /^http:\/\/localhost(:\d+)?$/,
+  /^http:\/\/127\.0\.0\.1(:\d+)?$/,
+  /^https:\/\/[a-zA-Z0-9-_.]+\.netlify\.app$/,
+  /^https:\/\/[a-zA-Z0-9-_.]+\.onrender\.com$/
+];
 
 export const corsConfig = (req, res, next) => {
   const origin = req.headers.origin;
-  if (!origin || allowedOrigins.includes(origin)) {
-    res.setHeader('Access-Control-Allow-Origin', origin || 'http://localhost:3000');
+
+  let isAllowed = false;
+  if (!origin) {
+    isAllowed = true;
+  } else {
+    isAllowed = allowedOriginPatterns.some(pattern => pattern.test(origin));
+
+    if (!isAllowed && process.env.CLIENT_URL) {
+      const clientUrl = process.env.CLIENT_URL.trim().replace(/\/$/, '');
+      if (origin === clientUrl) isAllowed = true;
+    }
+
+    if (!isAllowed && process.env.ALLOWED_ORIGINS) {
+      const customOrigins = process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim().replace(/\/$/, ''));
+      if (customOrigins.includes(origin)) isAllowed = true;
+    }
   }
+
+  if (isAllowed && origin) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  } else if (!origin) {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+  }
+
   res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+  res.setHeader('Access-Control-Max-Age', '86400');
 
   if (req.method === 'OPTIONS') {
     return res.status(204).end();

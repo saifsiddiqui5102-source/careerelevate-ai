@@ -1,4 +1,5 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
+const RAW_API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
+const API_BASE_URL = RAW_API_URL.replace(/\/+$/, '');
 
 const getAuthHeaders = (isFormData = false) => {
   const token = localStorage.getItem('careerelevate_token');
@@ -12,6 +13,38 @@ const getAuthHeaders = (isFormData = false) => {
   return headers;
 };
 
+const parseApiResponse = async (res) => {
+  const text = await res.text();
+  try {
+    return JSON.parse(text);
+  } catch {
+    if (!res.ok) {
+      if (res.status === 502 || res.status === 503 || res.status === 504) {
+        return {
+          success: false,
+          message: 'The server is currently waking up or temporarily unavailable. Please try again in 10-15 seconds.'
+        };
+      }
+      return {
+        success: false,
+        message: `Server returned HTTP ${res.status}. Please check your connection and try again.`
+      };
+    }
+    return {
+      success: false,
+      message: 'Unexpected response from server.'
+    };
+  }
+};
+
+const getNetworkErrorMessage = (err, defaultMsg = 'Authentication request failed.') => {
+  const msg = err?.message || '';
+  if (err instanceof TypeError && (msg.includes('fetch') || msg.includes('NetworkError') || msg.includes('Failed to fetch'))) {
+    return 'Unable to connect to authentication server. Please check your network connection or ensure the server is online.';
+  }
+  return msg || defaultMsg;
+};
+
 export const api = {
   async register(name, email, password, targetRole) {
     try {
@@ -20,10 +53,10 @@ export const api = {
         headers: getAuthHeaders(),
         body: JSON.stringify({ name, email, password, targetRole })
       });
-      return await res.json();
+      return await parseApiResponse(res);
     } catch (err) {
       console.error('Registration API error:', err);
-      return { success: false, message: 'Unable to connect to authentication server. Please check your network and try again.' };
+      return { success: false, message: getNetworkErrorMessage(err, 'Registration request failed. Please try again.') };
     }
   },
 
@@ -34,10 +67,10 @@ export const api = {
         headers: getAuthHeaders(),
         body: JSON.stringify({ email, otp, challengeId })
       });
-      return await res.json();
+      return await parseApiResponse(res);
     } catch (err) {
       console.error('Verify OTP API error:', err);
-      return { success: false, message: 'Unable to connect to authentication server. Please try again.' };
+      return { success: false, message: getNetworkErrorMessage(err, 'Verification request failed. Please try again.') };
     }
   },
 
@@ -48,10 +81,10 @@ export const api = {
         headers: getAuthHeaders(),
         body: JSON.stringify({ email, challengeId })
       });
-      return await res.json();
+      return await parseApiResponse(res);
     } catch (err) {
       console.error('Resend OTP API error:', err);
-      return { success: false, message: 'Unable to connect to authentication server. Please try again.' };
+      return { success: false, message: getNetworkErrorMessage(err, 'Failed to resend code. Please try again.') };
     }
   },
 
@@ -62,10 +95,10 @@ export const api = {
         headers: getAuthHeaders(),
         body: JSON.stringify({ email })
       });
-      return await res.json();
+      return await parseApiResponse(res);
     } catch (err) {
       console.error('Forgot password API error:', err);
-      return { success: false, message: 'Unable to connect to authentication server. Please try again.' };
+      return { success: false, message: getNetworkErrorMessage(err, 'Password reset request failed. Please try again.') };
     }
   },
 
@@ -76,10 +109,10 @@ export const api = {
         headers: getAuthHeaders(),
         body: JSON.stringify({ email, token, newPassword })
       });
-      return await res.json();
+      return await parseApiResponse(res);
     } catch (err) {
       console.error('Reset password API error:', err);
-      return { success: false, message: 'Unable to connect to authentication server. Please try again.' };
+      return { success: false, message: getNetworkErrorMessage(err, 'Password update request failed. Please try again.') };
     }
   },
 
@@ -90,10 +123,10 @@ export const api = {
         headers: getAuthHeaders(),
         body: JSON.stringify({ email, password })
       });
-      return await res.json();
+      return await parseApiResponse(res);
     } catch (err) {
       console.error('Login API error:', err);
-      return { success: false, message: 'Unable to connect to authentication server. Please check your network and try again.' };
+      return { success: false, message: getNetworkErrorMessage(err, 'Login request failed. Please try again.') };
     }
   },
 
@@ -103,9 +136,9 @@ export const api = {
         method: 'GET',
         headers: getAuthHeaders()
       });
-      return await res.json();
+      return await parseApiResponse(res);
     } catch (err) {
-      return { success: false };
+      return { success: false, message: 'Unable to retrieve user profile.' };
     }
   },
 

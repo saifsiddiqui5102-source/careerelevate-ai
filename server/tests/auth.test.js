@@ -33,6 +33,44 @@ test('Authentication API – Full Two-Step Login Flow & Security Tests', async (
   let challengeId = '';
   let authToken = '';
 
+  // ── CORS & SECURITY HEADERS ──────────────────────────────────────────────────
+  await t.test('CORS: allows Netlify origin preflight with Access-Control-Allow-Origin', async () => {
+    const res = await fetch(`http://localhost:${port}/api/v1/auth/login`, {
+      method: 'OPTIONS',
+      headers: {
+        'Origin': 'https://careerelevate.netlify.app',
+        'Access-Control-Request-Method': 'POST',
+        'Access-Control-Request-Headers': 'Content-Type'
+      }
+    });
+    assert.equal(res.status, 204);
+    assert.equal(res.headers.get('access-control-allow-origin'), 'https://careerelevate.netlify.app');
+  });
+
+  await t.test('CORS: allows Vite localhost:5173 origin preflight', async () => {
+    const res = await fetch(`http://localhost:${port}/api/v1/auth/login`, {
+      method: 'OPTIONS',
+      headers: {
+        'Origin': 'http://localhost:5173',
+        'Access-Control-Request-Method': 'POST'
+      }
+    });
+    assert.equal(res.status, 204);
+    assert.equal(res.headers.get('access-control-allow-origin'), 'http://localhost:5173');
+  });
+
+  await t.test('CORS: allows localhost:3000 origin preflight', async () => {
+    const res = await fetch(`http://localhost:${port}/api/v1/auth/login`, {
+      method: 'OPTIONS',
+      headers: {
+        'Origin': 'http://localhost:3000',
+        'Access-Control-Request-Method': 'POST'
+      }
+    });
+    assert.equal(res.status, 204);
+    assert.equal(res.headers.get('access-control-allow-origin'), 'http://localhost:3000');
+  });
+
   // ── REGISTRATION ─────────────────────────────────────────────────────────────
   await t.test('REGISTER: rejects missing email', async () => {
     const res = await fetch(`http://localhost:${port}/api/v1/auth/register`, {
@@ -377,21 +415,23 @@ test('Authentication API – Full Two-Step Login Flow & Security Tests', async (
   await t.test('DB GUARD: returns 503 in production when MongoDB is unavailable', async () => {
     // Temporarily simulate production with DB disconnected
     const originalEnv = process.env.NODE_ENV;
-    process.env.NODE_ENV = 'production';
     __setDbOfflineForTesting(true);
+    process.env.NODE_ENV = 'production';
 
-    const res = await fetch(`http://localhost:${port}/api/v1/auth/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: testUser.email, password: testUser.password })
-    });
-    const data = await res.json();
+    try {
+      const res = await fetch(`http://localhost:${port}/api/v1/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: testUser.email, password: testUser.password })
+      });
+      const data = await res.json();
 
-    __setDbOfflineForTesting(false);
-    process.env.NODE_ENV = originalEnv;
-
-    assert.equal(res.status, 503);
-    assert.equal(data.success, false);
+      assert.equal(res.status, 503);
+      assert.equal(data.success, false);
+    } finally {
+      __setDbOfflineForTesting(false);
+      process.env.NODE_ENV = originalEnv;
+    }
   });
 
   // ── Teardown ─────────────────────────────────────────────────────────────────

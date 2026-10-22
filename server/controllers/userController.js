@@ -4,7 +4,7 @@ import { User } from '../models/User.js';
 export const getUserProfile = async (req, res, next) => {
   try {
     let user = null;
-    if (mongoose.connection.readyState === 1) {
+    if (mongoose.connection.readyState === 1 && req.user?._id && mongoose.Types.ObjectId.isValid(req.user._id)) {
       user = await User.findById(req.user._id);
     }
 
@@ -54,7 +54,7 @@ export const updateUserProfile = async (req, res, next) => {
     const { name, avatar, targetRole, skills, experience, education } = req.body;
 
     let user = null;
-    if (mongoose.connection.readyState === 1) {
+    if (mongoose.connection.readyState === 1 && req.user?._id && mongoose.Types.ObjectId.isValid(req.user._id)) {
       user = await User.findById(req.user._id);
       if (user) {
         if (name) user.name = name;

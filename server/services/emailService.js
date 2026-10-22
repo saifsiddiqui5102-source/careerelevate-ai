@@ -1,49 +1,68 @@
 import nodemailer from 'nodemailer';
 
-const createTransporter = () => {
-  if (process.env.SMTP_USER && process.env.SMTP_USER !== 'noreply.careerelevate@gmail.com') {
+const isProduction = process.env.NODE_ENV === 'production';
+
+export const getTransporter = () => {
+  const host = process.env.SMTP_HOST;
+  const user = process.env.SMTP_USER;
+  const pass = process.env.SMTP_PASS;
+  const port = Number(process.env.SMTP_PORT) || 587;
+  const secure = process.env.SMTP_SECURE === 'true' || port === 465;
+
+  if (user && pass && user !== 'noreply.careerelevate@gmail.com') {
     return nodemailer.createTransport({
-      host: process.env.SMTP_HOST || 'smtp.gmail.com',
-      port: Number(process.env.SMTP_PORT) || 587,
-      secure: false,
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS
-      }
+      host: host || 'smtp.gmail.com',
+      port,
+      secure,
+      auth: { user, pass }
     });
   }
 
-  // Development Fallback Transporter (logs email preview in console)
+  if (isProduction) {
+    // In production, we MUST NOT silently simulate email delivery
+    return null;
+  }
+
+  // Development / Test Simulation Transporter
   return {
     async sendMail(options) {
-      console.log('====================================================');
-      console.log('📧 [NODEMAILER EMAIL DISPATCH SIMULATOR]');
-      console.log(`To: ${options.to}`);
-      console.log(`Subject: ${options.subject}`);
-      console.log('====================================================');
+      if (process.env.NODE_ENV !== 'test') {
+        console.log('====================================================');
+        console.log('📧 [NODEMAILER EMAIL DISPATCH SIMULATOR]');
+        console.log(`To: ${options.to}`);
+        console.log(`Subject: ${options.subject}`);
+        console.log('====================================================');
+      }
       return { messageId: `simulated-${Date.now()}` };
     }
   };
 };
 
-const transporter = createTransporter();
+export async function sendOTPEmail(email, otp, name = 'Candidate', purpose = 'login') {
+  const transporter = getTransporter();
+  if (!transporter) {
+    throw new Error('SMTP credentials are not configured in production environment.');
+  }
 
-export async function sendOTPEmail(email, otp, name = 'Candidate') {
+  const isLogin = purpose === 'login';
+  const actionText = isLogin ? 'log in to' : 'activate';
+  const title = isLogin ? 'Sign-In Two-Factor Verification' : 'Account Activation Verification';
+
   const mailOptions = {
     from: process.env.FROM_EMAIL || '"CareerElevate AI" <noreply@careerelevate.ai>',
     to: email,
-    subject: `${otp} is your CareerElevate AI Verification Code`,
+    subject: `Your CareerElevate AI Verification Code`,
     html: `
       <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #07090e; color: #f8fafc; border-radius: 16px; padding: 32px; border: 1px solid #1e293b;">
         <div style="text-align: center; margin-bottom: 24px;">
           <h1 style="color: #818cf8; font-size: 24px; margin: 0; font-weight: 800;">CareerElevate AI</h1>
-          <p style="color: #94a3b8; font-size: 14px; margin-top: 4px;">Account Verification</p>
+          <p style="color: #94a3b8; font-size: 14px; margin-top: 4px;">${title}</p>
         </div>
         
         <div style="background-color: #0f172a; border: 1px solid #334155; border-radius: 12px; padding: 24px; text-align: center;">
-          <h2 style="color: #ffffff; font-size: 18px; margin-top: 0;">Welcome, ${name}!</h2>
+          <h2 style="color: #ffffff; font-size: 18px; margin-top: 0;">Hello, ${name}!</h2>
           <p style="color: #cbd5e1; font-size: 14px; line-height: 1.5;">
-            Please use the 6-digit verification code below to activate your CareerElevate AI candidate account:
+            Please use the 6-digit verification code below to ${actionText} your CareerElevate AI account:
           </p>
           
           <div style="background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); border-radius: 12px; padding: 16px 24px; display: inline-block; margin: 20px 0;">
@@ -51,12 +70,12 @@ export async function sendOTPEmail(email, otp, name = 'Candidate') {
           </div>
           
           <p style="color: #f59e0b; font-size: 12px; font-weight: 600; margin-top: 8px;">
-            ⏰ Code expires in 10 minutes. Do not share this code with anyone.
+            ⏰ Code expires in 5 minutes. Allow up to 5 verification attempts per code.
           </p>
         </div>
 
         <div style="margin-top: 32px; text-align: center; color: #64748b; font-size: 12px;">
-          <p>If you did not request this code, please ignore this email.</p>
+          <p>If you did not request this verification code, please ignore this email or update your password.</p>
           <p>© 2026 CareerElevate AI. All rights reserved.</p>
         </div>
       </div>

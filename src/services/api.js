@@ -22,35 +22,36 @@ export const api = {
       });
       return await res.json();
     } catch (err) {
-      console.warn('API connection offline, using client state fallback');
-      return { success: true, message: 'OTP sent to email', step: 'verify-otp', email };
+      console.error('Registration API error:', err);
+      return { success: false, message: 'Unable to connect to authentication server. Please check your network and try again.' };
     }
   },
 
-  async verifyOTP(email, otp) {
+  async verifyOTP(email, otp, challengeId) {
     try {
       const res = await fetch(`${API_BASE_URL}/auth/verify-otp`, {
         method: 'POST',
         headers: getAuthHeaders(),
-        body: JSON.stringify({ email, otp })
+        body: JSON.stringify({ email, otp, challengeId })
       });
       return await res.json();
     } catch (err) {
-      console.warn('API connection offline, using client state fallback');
-      return { success: true, token: 'demo-jwt-token', user: { email, name: 'Candidate' } };
+      console.error('Verify OTP API error:', err);
+      return { success: false, message: 'Unable to connect to authentication server. Please try again.' };
     }
   },
 
-  async resendOTP(email) {
+  async resendOTP(email, challengeId) {
     try {
       const res = await fetch(`${API_BASE_URL}/auth/resend-otp`, {
         method: 'POST',
         headers: getAuthHeaders(),
-        body: JSON.stringify({ email })
+        body: JSON.stringify({ email, challengeId })
       });
       return await res.json();
     } catch (err) {
-      return { success: true, message: 'Fresh OTP code sent' };
+      console.error('Resend OTP API error:', err);
+      return { success: false, message: 'Unable to connect to authentication server. Please try again.' };
     }
   },
 
@@ -63,7 +64,8 @@ export const api = {
       });
       return await res.json();
     } catch (err) {
-      return { success: true, message: 'Password reset link sent to your email.' };
+      console.error('Forgot password API error:', err);
+      return { success: false, message: 'Unable to connect to authentication server. Please try again.' };
     }
   },
 
@@ -76,7 +78,8 @@ export const api = {
       });
       return await res.json();
     } catch (err) {
-      return { success: true, message: 'Password reset successful!' };
+      console.error('Reset password API error:', err);
+      return { success: false, message: 'Unable to connect to authentication server. Please try again.' };
     }
   },
 
@@ -89,8 +92,8 @@ export const api = {
       });
       return await res.json();
     } catch (err) {
-      console.warn('API connection offline, using client state fallback');
-      return { success: true, token: 'demo-jwt-token', user: { email, name: email.split('@')[0] } };
+      console.error('Login API error:', err);
+      return { success: false, message: 'Unable to connect to authentication server. Please check your network and try again.' };
     }
   },
 

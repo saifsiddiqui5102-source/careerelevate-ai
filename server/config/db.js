@@ -10,6 +10,10 @@ export const connectDB = async () => {
     });
     console.log(`✅ MongoDB Connected Successfully: ${conn.connection.host}`);
   } catch (error) {
+    if (process.env.NODE_ENV === 'production') {
+      console.error(`❌ CRITICAL: MongoDB connection failed in production: ${error.message}`);
+      throw error;
+    }
     console.warn(`⚠️ Primary MongoDB connection offline (${error.message}). Enabled high-availability Memory Mode Fallback.`);
   }
 };

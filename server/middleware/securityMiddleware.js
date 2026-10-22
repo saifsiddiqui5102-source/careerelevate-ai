@@ -49,6 +49,9 @@ const cleanOldIpEntries = (windowMs) => {
 
 // 3. Global API Rate Limiter (100 requests per 15 mins)
 export const globalRateLimiter = (req, res, next) => {
+  if (process.env.NODE_ENV === 'test') {
+    return next();
+  }
   cleanOldIpEntries(15 * 60 * 1000);
   const ip = req.ip || req.connection.remoteAddress || '127.0.0.1';
   const now = Date.now();
@@ -75,6 +78,9 @@ export const globalRateLimiter = (req, res, next) => {
 
 // Auth Route Specific Rate Limiter (20 requests per 15 mins)
 export const authRateLimiter = (req, res, next) => {
+  if (process.env.NODE_ENV === 'test') {
+    return next();
+  }
   const ip = (req.ip || '127.0.0.1') + '-auth';
   const now = Date.now();
   const windowMs = 15 * 60 * 1000;

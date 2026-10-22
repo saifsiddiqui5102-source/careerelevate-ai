@@ -1,6 +1,7 @@
 process.env.NODE_ENV = 'test';
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import mongoose from 'mongoose';
 import jwt from 'jsonwebtoken';
 import app from '../server.js';
 
@@ -115,6 +116,7 @@ test('AI Interview Prep API v1 Endpoints (/api/v1/interview)', async (t) => {
   });
 
   await t.test('Teardown test HTTP server instance', async () => {
-    server.close();
+    await new Promise((resolve) => server.close(resolve));
+    await mongoose.disconnect();
   });
 });

@@ -128,3 +128,15 @@ Stack: Error: listen EADDRINUSE: address already in use :::5000
     at ModuleJob.run (node:internal/modules/esm/module_job:370:25)
     at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:665:26)
     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:99:5)
+[2026-10-22 21:16:56] [ERROR]: [SERVER ERROR 400] Invalid resource ID format: mem-usr-1792703815282 | HTTP GET /api/v1/auth/profile 400
+Stack: CastError: Invalid resource ID format: mem-usr-1792703815282
+    at SchemaObjectId.cast (C:\Users\Mohd saif siddiqui\Documents\resume-interview-pro\server\node_modules\mongoose\lib\schema\objectId.js:253:11)
+    at SchemaType.applySetters (C:\Users\Mohd saif siddiqui\Documents\resume-interview-pro\server\node_modules\mongoose\lib\schemaType.js:1288:12)
+    at SchemaType.castForQuery (C:\Users\Mohd saif siddiqui\Documents\resume-interview-pro\server\node_modules\mongoose\lib\schemaType.js:1718:17)
+    at cast (C:\Users\Mohd saif siddiqui\Documents\resume-interview-pro\server\node_modules\mongoose\lib\cast.js:390:32)
+    at Query.cast (C:\Users\Mohd saif siddiqui\Documents\resume-interview-pro\server\node_modules\mongoose\lib\query.js:5060:12)
+    at Query._castConditions (C:\Users\Mohd saif siddiqui\Documents\resume-interview-pro\server\node_modules\mongoose\lib\query.js:2374:10)
+    at model.Query._findOne (C:\Users\Mohd saif siddiqui\Documents\resume-interview-pro\server\node_modules\mongoose\lib\query.js:2697:8)
+    at model.Query.exec (C:\Users\Mohd saif siddiqui\Documents\resume-interview-pro\server\node_modules\mongoose\lib\query.js:4627:80)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async getUserProfile (file:///C:/Users/Mohd%20saif%20siddiqui/Documents/resume-interview-pro/server/controllers/userController.js:8:14)

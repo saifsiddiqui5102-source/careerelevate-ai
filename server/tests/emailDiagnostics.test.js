@@ -3,56 +3,61 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { classifyEmailError, logEmailDeliveryError } from '../services/emailService.js';
 
-test('Email Service Diagnostics & Error Classification', async (t) => {
-  await t.test('Classifies missing SMTP credentials as MISSING_SMTP_CONFIG', () => {
-    const err = new Error('SMTP credentials are not configured in production environment (SMTP_USER or SMTP_PASS missing or placeholder).');
-    err.code = 'ECONFIG_MISSING';
+test('Email Service Diagnostics & Resend API Error Classification', async (t) => {
+  await t.test('Classifies missing RESEND_API_KEY as MISSING_RESEND_CONFIG', () => {
+    const err = new Error('Resend API key is not configured in production environment (RESEND_API_KEY missing).');
+    err.code = 'ERESEND_KEY_MISSING';
     const result = classifyEmailError(err);
-    assert.equal(result.category, 'MISSING_SMTP_CONFIG');
-    assert.ok(result.description.includes('SMTP_USER or SMTP_PASS'));
+    assert.equal(result.category, 'MISSING_RESEND_CONFIG');
+    assert.ok(result.description.includes('RESEND_API_KEY'));
   });
 
-  await t.test('Classifies 535 EAUTH rejection as SMTP_AUTH_FAILURE', () => {
-    const err = new Error('Invalid login: 535-5.7.8 Username and Password not accepted');
-    err.code = 'EAUTH';
-    err.response = '535-5.7.8 Username and Password not accepted';
+  await t.test('Classifies 401 invalid_api_key rejection as RESEND_AUTH_FAILURE', () => {
+    const err = new Error('API key is invalid');
+    err.code = 'RESEND_401';
+    err.name = 'invalid_api_key';
     const result = classifyEmailError(err);
-    assert.equal(result.category, 'SMTP_AUTH_FAILURE');
-    assert.ok(result.description.includes('Google App Password'));
+    assert.equal(result.category, 'RESEND_AUTH_FAILURE');
+    assert.ok(result.description.includes('Check RESEND_API_KEY'));
   });
 
-  await t.test('Classifies connection timeout / refused as SMTP_CONNECTION_TIMEOUT', () => {
-    const errTimeout = new Error('Connection timeout');
+  await t.test('Classifies domain restriction (testing domain unverified recipient) as RESEND_DOMAIN_RESTRICTION', () => {
+    const err = new Error('You can only send testing emails to your own email address (user@domain.com). To send to other domains, verify your domain at resend.com/domains');
+    err.code = 'RESEND_403';
+    err.name = 'validation_error';
+    const result = classifyEmailError(err);
+    assert.equal(result.category, 'RESEND_DOMAIN_RESTRICTION');
+    assert.ok(result.description.includes('onboarding@resend.dev'));
+  });
+
+  await t.test('Classifies rate limit (429) as RESEND_RATE_LIMITED', () => {
+    const err = new Error('Too many requests. Rate limit exceeded.');
+    err.code = 'RESEND_429';
+    const result = classifyEmailError(err);
+    assert.equal(result.category, 'RESEND_RATE_LIMITED');
+  });
+
+  await t.test('Classifies network timeout as RESEND_NETWORK_TIMEOUT', () => {
+    const errTimeout = new Error('Connection timeout contacting api.resend.com');
     errTimeout.code = 'ETIMEDOUT';
-    const result1 = classifyEmailError(errTimeout);
-    assert.equal(result1.category, 'SMTP_CONNECTION_TIMEOUT');
-
-    const errRefused = new Error('connect ECONNREFUSED 127.0.0.1:587');
-    errRefused.code = 'ECONNREFUSED';
-    const result2 = classifyEmailError(errRefused);
-    assert.equal(result2.category, 'SMTP_CONNECTION_TIMEOUT');
+    const result = classifyEmailError(errTimeout);
+    assert.equal(result.category, 'RESEND_NETWORK_TIMEOUT');
   });
 
-  await t.test('Classifies other transport errors as SMTP_DELIVERY_FAILURE', () => {
-    const err = new Error('550 5.1.1 Recipient unknown');
-    err.code = 'EENVELOPE';
-    const result = classifyEmailError(err);
-    assert.equal(result.category, 'SMTP_DELIVERY_FAILURE');
-  });
-
-  await t.test('logEmailDeliveryError outputs clearly labelled log and does not leak credentials or secrets', () => {
+  await t.test('logEmailDeliveryError outputs clearly labelled log and does not leak API keys, tokens, or secrets', () => {
     const loggedMessages = [];
     const originalConsoleError = console.error;
     console.error = (msg) => { loggedMessages.push(msg); };
 
     try {
+      const sensitiveApiKey = 're_123456789_abcdefghijklmnop';
       const sensitivePassword = 'super-secret-password-1234';
       const sensitiveToken = 'sensitive-token-abcdef';
       const sensitiveOtp = '123456';
 
-      const err = new Error('Invalid login: 535-5.7.8 Username and Password not accepted');
-      err.code = 'EAUTH';
-      err.name = 'AuthError';
+      const err = new Error('API key is invalid');
+      err.code = 'RESEND_401';
+      err.name = 'invalid_api_key';
 
       logEmailDeliveryError('test-registration', err);
 
@@ -62,16 +67,17 @@ test('Email Service Diagnostics & Error Classification', async (t) => {
       // Verifies clearly labelled error log
       assert.ok(log.startsWith('[EMAIL-DELIVERY-ERROR]'), 'Must have clear EMAIL-DELIVERY-ERROR label');
       assert.ok(log.includes('Context: [test-registration]'));
-      assert.ok(log.includes('Category: [SMTP_AUTH_FAILURE]'));
-      assert.ok(log.includes('ErrorName: [AuthError]'));
-      assert.ok(log.includes('ErrorCode: [EAUTH]'));
-      assert.ok(log.includes('Message: "Invalid login: 535-5.7.8 Username and Password not accepted"'));
+      assert.ok(log.includes('Provider: [Resend API]'));
+      assert.ok(log.includes('Category: [RESEND_AUTH_FAILURE]'));
+      assert.ok(log.includes('ErrorName: [invalid_api_key]'));
+      assert.ok(log.includes('ErrorCode: [RESEND_401]'));
+      assert.ok(log.includes('Message: "API key is invalid"'));
 
-      // Verifies passwords, tokens, OTPs, or raw secrets are NOT in the log
+      // Verifies API keys, passwords, tokens, OTPs, or raw secrets are NOT in the log
+      assert.ok(!log.includes(sensitiveApiKey), 'API keys must never be logged');
       assert.ok(!log.includes(sensitivePassword), 'Passwords must never be logged');
       assert.ok(!log.includes(sensitiveToken), 'Tokens must never be logged');
       assert.ok(!log.includes(sensitiveOtp), 'OTPs must never be logged');
-      assert.ok(!log.includes('your_app_specific_password'), 'Placeholder password must not appear');
     } finally {
       console.error = originalConsoleError;
     }
@@ -103,13 +109,13 @@ test('Email Service Diagnostics & Error Classification', async (t) => {
 
       await register(req, res, (err) => { if (err) throw err; });
 
-      // In production with DB connected and placeholder SMTP, email delivery fails with 500
       if (statusCode === 500) {
         assert.equal(jsonBody.success, false);
         assert.equal(jsonBody.message, 'Account created, but verification email delivery failed. Please try again later or contact support.');
         assert.equal(jsonBody.token, undefined);
         assert.equal(jsonBody.otp, undefined);
         assert.ok(loggedErrors.some(l => l.includes('[EMAIL-DELIVERY-ERROR]')), 'Must log [EMAIL-DELIVERY-ERROR]');
+        assert.ok(loggedErrors.some(l => l.includes('Resend API')), 'Must indicate Resend API');
       }
     } finally {
       process.env.NODE_ENV = originalEnv;

@@ -3,7 +3,7 @@ import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
 import mongoose from 'mongoose';
 import { User } from '../models/User.js';
-import { sendOTPEmail, sendWelcomeEmail, sendPasswordResetEmail } from '../services/emailService.js';
+import { sendOTPEmail, sendWelcomeEmail, sendPasswordResetEmail, logEmailDeliveryError } from '../services/emailService.js';
 
 // In-Memory Fallback User Store (only used in development/testing when MongoDB is offline)
 export const memoryUsers = new Map();
@@ -142,10 +142,11 @@ export const register = async (req, res, next) => {
     try {
       await sendOTPEmail(emailLower, otp, name, 'registration');
     } catch (emailErr) {
+      logEmailDeliveryError('registration', emailErr);
       if (process.env.NODE_ENV === 'production') {
         return res.status(500).json({
           success: false,
-          message: 'Account created, but verification email delivery failed. Please ensure SMTP_USER and SMTP_PASS are configured in server settings.'
+          message: 'Account created, but verification email delivery failed. Please try again later or contact support.'
         });
       }
     }
@@ -227,10 +228,11 @@ export const login = async (req, res, next) => {
     try {
       await sendOTPEmail(user.email, otp, user.name, user.otpPurpose);
     } catch (emailErr) {
+      logEmailDeliveryError('login', emailErr);
       if (process.env.NODE_ENV === 'production') {
         return res.status(500).json({
           success: false,
-          message: 'Credentials verified, but verification email delivery failed. Please ensure SMTP_USER and SMTP_PASS are configured in server settings.'
+          message: 'Credentials verified, but verification email delivery failed. Please try again later or contact support.'
         });
       }
     }
@@ -348,7 +350,7 @@ export const verifyOTP = async (req, res, next) => {
       try {
         await sendWelcomeEmail(user.email, user.name);
       } catch (e) {
-        // Log silently, do not fail login
+        logEmailDeliveryError('welcome-email', e);
       }
     }
 
@@ -443,10 +445,11 @@ export const resendOTP = async (req, res, next) => {
     try {
       await sendOTPEmail(user.email, otp, user.name, user.otpPurpose || 'login');
     } catch (emailErr) {
+      logEmailDeliveryError('resend-otp', emailErr);
       if (process.env.NODE_ENV === 'production') {
         return res.status(500).json({
           success: false,
-          message: 'Failed to dispatch verification code email. Please ensure SMTP_USER and SMTP_PASS are configured in server settings.'
+          message: 'Failed to dispatch verification code email. Please try again later.'
         });
       }
     }
@@ -507,10 +510,11 @@ export const forgotPassword = async (req, res, next) => {
     try {
       await sendPasswordResetEmail(user.email, resetUrl, user.name);
     } catch (emailErr) {
+      logEmailDeliveryError('forgot-password', emailErr);
       if (process.env.NODE_ENV === 'production') {
         return res.status(500).json({
           success: false,
-          message: 'Failed to send password reset email. Please ensure SMTP_USER and SMTP_PASS are configured in server settings.'
+          message: 'Failed to send password reset email. Please try again later.'
         });
       }
     }

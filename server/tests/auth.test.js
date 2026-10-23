@@ -3,7 +3,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import mongoose from 'mongoose';
 import app from '../server.js';
-import { __getLatestOtpForTesting, __setDbOfflineForTesting, memoryUsers } from '../controllers/authController.js';
+import { __getLatestOtpForTesting, __getLatestResetTokenForTesting, __setDbOfflineForTesting, memoryUsers } from '../controllers/authController.js';
 
 // ─── AUTH CONTROLLER TEST SUITE ────────────────────────────────────────────────
 // All tests run in-memory (MongoDB offline). Auth controller falls back to
@@ -409,6 +409,69 @@ test('Authentication API – Full Two-Step Login Flow & Security Tests', async (
     const data = await res.json();
     assert.equal(res.status, 400);
     assert.equal(data.success, false);
+  });
+
+  await t.test('RESET-PASSWORD: full reset flow updates password, allows login with new password, and rejects old password', async () => {
+    // 1. Request password reset
+    const forgotRes = await fetch(`http://localhost:${port}/api/v1/auth/forgot-password`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: testUser.email })
+    });
+    const forgotData = await forgotRes.json();
+    assert.equal(forgotRes.status, 200);
+    assert.equal(forgotData.success, true);
+
+    // 2. Retrieve token via test helper
+    const resetToken = __getLatestResetTokenForTesting(testUser.email);
+    assert.ok(resetToken, 'Reset token must be available for test environment');
+
+    const newPassword = 'BrandNewPassword@2026!';
+
+    // 3. Submit password reset with new password
+    const resetRes = await fetch(`http://localhost:${port}/api/v1/auth/reset-password`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: testUser.email, token: resetToken, newPassword })
+    });
+    const resetData = await resetRes.json();
+    assert.equal(resetRes.status, 200, `Reset failed: ${resetData.message}`);
+    assert.equal(resetData.success, true);
+
+    // 4. Token cannot be reused (single-use enforcement)
+    const reuseRes = await fetch(`http://localhost:${port}/api/v1/auth/reset-password`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: testUser.email, token: resetToken, newPassword: 'AnotherPassword@2026!' })
+    });
+    const reuseData = await reuseRes.json();
+    assert.equal(reuseRes.status, 400);
+    assert.equal(reuseData.success, false);
+
+    // 5. Old password must be rejected
+    const oldLoginRes = await fetch(`http://localhost:${port}/api/v1/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: testUser.email, password: testUser.password })
+    });
+    const oldLoginData = await oldLoginRes.json();
+    assert.equal(oldLoginRes.status, 401, 'Old password must be rejected after reset');
+    assert.equal(oldLoginData.success, false);
+
+    // 6. New password must be accepted and issue OTP challenge
+    const newLoginRes = await fetch(`http://localhost:${port}/api/v1/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: testUser.email, password: newPassword })
+    });
+    const newLoginData = await newLoginRes.json();
+    assert.equal(newLoginRes.status, 200, `Login with new password must succeed: ${newLoginData.message}`);
+    assert.equal(newLoginData.success, true);
+    assert.equal(newLoginData.step, 'verify-otp');
+    assert.ok(newLoginData.challengeId, 'Challenge ID must be issued on successful login');
+
+    // Update testUser.password for any subsequent tests
+    testUser.password = newPassword;
   });
 
   // ── PRODUCTION DB GUARD ──────────────────────────────────────────────────────

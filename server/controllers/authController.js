@@ -10,10 +10,16 @@ export const memoryUsers = new Map();
 
 // Test-only memory store for automated tests to query OTP without exposing it in API responses
 const testOtpStore = new Map();
+const testResetTokenStore = new Map();
 
 export const __getLatestOtpForTesting = (email) => {
   if (process.env.NODE_ENV !== 'test') return null;
   return testOtpStore.get(email.toLowerCase().trim()) || null;
+};
+
+export const __getLatestResetTokenForTesting = (email) => {
+  if (process.env.NODE_ENV !== 'test') return null;
+  return testResetTokenStore.get(email.toLowerCase().trim()) || null;
 };
 
 export const getMemoryUserById = (id) => {
@@ -498,6 +504,10 @@ export const forgotPassword = async (req, res, next) => {
     user.resetPasswordToken = hashedResetToken;
     user.resetPasswordExpiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
 
+    if (process.env.NODE_ENV === 'test') {
+      testResetTokenStore.set(emailLower, rawResetToken);
+    }
+
     if (user && typeof user.save === 'function') {
       await user.save();
     } else {
@@ -571,14 +581,15 @@ export const resetPassword = async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'Invalid or expired password reset token.' });
     }
 
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
-    user.password = hashedPassword;
     user.resetPasswordToken = undefined;
     user.resetPasswordExpiresAt = undefined;
+    user.isVerified = true;
 
     if (user && typeof user.save === 'function') {
+      user.password = newPassword; // Mongoose pre-save hook will hash once with bcrypt
       await user.save();
     } else {
+      user.password = await bcrypt.hash(newPassword, 10);
       memoryUsers.set(emailLower, user);
     }
 
